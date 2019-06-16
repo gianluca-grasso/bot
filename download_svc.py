@@ -20,7 +20,7 @@ def download_th(num):
         #x.mock_start()
         bot = genio()
         x.start(bot)
-        data.rem_episode(x)
+        #data.rem_episodes(x)
 
 
 @app.route("/download", methods=['POST'])
@@ -28,7 +28,7 @@ def download():
     global data
 
     t = json.loads(request.data)
-    data.add_esisode_as_json_or_dict(t)
+    data.add_esisodes_as_json_or_dict(t)
     
     return Response(status=200)
 
@@ -39,6 +39,14 @@ def get_downloads():
     return Response(json.dumps(t), mimetype='application/json')
         
 
+@app.route("/rem_downloads_by_id", methods=['POST'])
+def rem_downloads():
+    global data
+
+    t = json.loads(request.data)["ids"]
+    data.rem_episodes_by_id(t)
+
+    return Response(status=200)
 
 
 if __name__ == "__main__":

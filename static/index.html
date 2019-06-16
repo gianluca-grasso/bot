@@ -143,6 +143,18 @@
                 margin: auto;
             }
 
+            .progressbar{
+                border: 1px solid lightgray;
+                width: 100px;
+                height: 20px;
+            }
+
+            .progressbar .bar{
+                width: 0px;
+                height: 20px;
+                background: dodgerblue;
+            }
+
         </style>
 
         <script type="text/javascript">
@@ -167,6 +179,8 @@
                 xhttp.onreadystatechange = function() {
                     if (this.readyState == 4 && this.status == 200) {
                         callback(this.responseText);
+                    }else if (this.readyState == 4){
+                        callback
                     }
                 };
                 xhttp.open(method, url, true);
@@ -204,7 +218,7 @@
                             x.innerHTML = "<div class='season_flag'>Stagione"+s+"</div>";
                         }
 
-                        x.innerHTML += "<div class='episode'><div data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
+                        x.innerHTML += "<div class='episode'><div tabindex='"+c+"' data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
                         //x.innerHTML += "<div class='episode'><input data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' type='checkbox'/><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
                     }
 
@@ -248,6 +262,72 @@
             }
 
 
+            function get_downloads(callback){
+                ajax("GET", "http://127.0.0.1:5001/get_downloads", "", "", function(x){
+                    var list = JSON.parse(x);
+
+
+                    var downloads = document.getElementById("downloads");
+
+                    for (c in list){
+                        var ele = list[c];
+                        
+                        var id = ele["s"]+"x"+ele["e"]+" - "+ele["name"];
+
+                        var target = document.getElementById(id);
+                        if (target==undefined){
+                            
+                            var tmp = "<tr id='"+id+"'><td><img src='static/pause.png'/><img src='static/stop.png'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
+                            tmp += "<div class='progressbar'><div id='bar'></div></div>";//"<progress value='"+ele.cpos+"' max=''>0</progress>";
+                            tmp += "</td></tr>";
+                            
+                            downloads.children[0].children[0].innerHTML += tmp;
+                            
+                        }else{
+                            //target.children[2].firstChild.value = ele["cpos"];
+                            //target.children[2].firstChild.max = ele["len"];
+                            var per = Math.round(ele["cpos"]*100/ele["len"]);
+                            target.children[2].firstChild.innerHTML = per;
+                            target.children[2].firstChild.style.width = per+"px";
+                        }
+                    }
+                    
+                    if (callback !== undefined) callback(list.length);
+
+                });
+            }
+
+
+            function check_click(check){
+
+                var s = check.getAttribute("data-s");
+                var e = check.getAttribute("data-e");
+                var name = check.getAttribute("data-name");
+                var link = check.getAttribute("data-link");
+
+                var block = check.firstChild;
+                if (block.className.indexOf("blockon")>0){
+                    block.className = "block";
+                    check.className = "check";
+                    delete db[s+"x"+e];
+                }else{
+                    block.className = "block blockon";
+                    check.className = "check checkon";
+                    db[s+"x"+e] = {'s':s, 'e':e, 'name':name, 'link':link};
+                }
+                
+            }
+
+
+            function check_space(e, check){
+
+                if (e.keyCode==32) check_click(check);
+                e.preventDefault();
+                e.stopPropagation();
+
+            }
+
+
             function download(){
 
                 var path = document.getElementById("path").value;
@@ -274,126 +354,6 @@
 
             }
 
-            
-            function get_downloads(callback){
-                ajax("GET", "http://127.0.0.1:5001/get_downloads", "", "", function(x){
-                    var list = JSON.parse(x);
-
-                    /*
-                    var downloads = document.getElementById("downloads");
-
-                    var table = document.createElement("table");
-                    var head = document.createElement("tr");
-
-                    
-                    var th = "";
-                    th = document.createElement("th");
-                    th.appendChild(document.createTextNode("cmd"));
-                    head.appendChild(th);
-
-                    th = document.createElement("th");
-                    th.appendChild(document.createTextNode("name"));
-                    head.appendChild(th);
-
-                    th = document.createElement("th");
-                    th.appendChild(document.createTextNode("status"));
-                    head.appendChild(th);
-                    
-                    table.append(head);
-
-                    var c=0;
-                    for (c in list){
-                        var tr = document.createElement("tr");
-                        var td = "";
-                        var tmp = ""
-                        td = document.createElement("td");
-                        tmp = document.createElement("img");
-                        tmp.src="static/pause.jpg";
-                        td.appendChild(tmp);
-                        tmp = document.createElement("img");
-                        tmp.src="static/stop.jpg";
-                        td.appendChild(tmp);
-
-                        tr.appendChild(td);
-
-                        td = document.createElement("td");
-                        td.appendChild(document.createTextNode(shortner(list[c].s+"x"+list[c].e+" "+list[c].name, 20)));
-
-                        tr.appendChild(td);
-
-                        td = document.createElement("td");
-                        tmp = document.createElement("progress");
-                        tmp.value = list[c].cpos;
-                        tmp.max = list[c].len;
-                        td.appendChild(tmp);
-
-                        tr.appendChild(td);
-                        table.appendChild(tr);
-                        
-                    }
-
-                    //downloads.appendChild(table);
-                    var old = downloads.getElementsByTagName("table")[0];
-
-                    if (old!==undefined) downloads.replaceChild(table, old);
-                    else downloads.appendChild(table);
-                    */
-                    
-                    /*
-                    var html = "<tbody><table>";
-
-                    html += "<tr><th>cmd</th><th>name</th><th>status</th></tr>";
-                    var c = 0;
-                    for (c in list){
-                        var ele = list[c];
-                        //console.log(ele.len);
-                        html += "<tr><td><img src='static/pause.png'/><img src='static/stop.png'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td><progress value='"+ele.cpos+"' max='"+ele.len+"'>"+ele.len+"</progress></td></tr>";
-                    }
-
-                    html += "</table></tbody>";
-
-                    document.getElementById("downloads").innerHTML = html;
-                    */
-
-                    var downloads = document.getElementById("downloads");
-
-                    for (c in list){
-                        var ele = list[c];
-                        var id = ele["s"]+"x"+ele["e"]+" - "+ele["name"];
-
-                        var target = document.getElementById(id);
-                        if (target==undefined){
-                            downloads.children[0].children[0].innerHTML += "<tr id='"+id+"'><td><img src='static/pause.png'/><img src='static/stop.png'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td><progress value='"+ele.cpos+"' max=''></progress></td></tr>";
-                        }else{
-                            target.children[2].firstChild.value = ele["cpos"];
-                            target.children[2].firstChild.max = ele["len"];
-                        }
-                    }
-                    
-                    if (callback !== undefined) callback(list.length);
-
-                });
-            }
-
-            function check_click(check){
-
-
-                var s = check.getAttribute("data-s");
-                var e = check.getAttribute("data-e");
-                var name = check.getAttribute("data-name");
-                var link = check.getAttribute("data-link");
-
-                var block = check.firstChild;
-                if (block.className.indexOf("blockon")>0){
-                    block.className = "block";
-                    check.className = "check";
-                    delete db[s+"x"+e];
-                }else{
-                    block.className = "block blockon";
-                    check.className = "check checkon";
-                    db[s+"x"+e] = {'s':s, 'e':e, 'name':name, 'link':link};
-                }
-            }
 
         </script>
     </head>

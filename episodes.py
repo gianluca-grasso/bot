@@ -75,6 +75,7 @@ class episode:
                 for chunk in stream.iter_content(4096):
                     self.cpos += len(chunk)
 
+                    fw.write(chunk)
                     if self.status!=0:
                         break
                 fw.close()
@@ -88,7 +89,7 @@ class episode:
         return False
 
 
-
+'''
 class episodes:
     
 
@@ -111,11 +112,12 @@ class episodes:
 
         if type(x).__name__ == "str":
             x = json.loads(x)
+        
 
-        print(">>>>>>>>>>>>>>>>>>>>>")
-        print(type(x))
-        print(x)
         for ele in x:
+            id = ele["e"]+ele["s"]+ele["name"]
+
+
             self.episodes.append(episode(**ele))
 
 
@@ -129,56 +131,54 @@ class episodes:
     def rem_episode(self, episode):
         self.episodes.remove(episode)
 ''' 
-class shared:
 
-    __episodes = []
-    __bot = None
+
+
+class episodes:
 
     def __init__(self):
-        self.__bot = genio()
-
+        self.episodes = {}
 
     def get_episodes(self):
-        return self.__episodes
+        return self.episodes
+    
+    def add_esisodes_as_json_or_dict(self, x):
+
+        if type(x).__name__ == "str":
+            x = json.loads(x)
+        
+
+        for ele in x:
+            id = ele["e"]+ele["s"]+ele["name"]
+            self.episodes[id] = episode(**ele)
 
 
-    def get_episodes_as_dict(self):
+    def rem_episodes_as_json_or_dict(self, x):
+
+        if type(x).__name__ == "str":
+            x = json.loads(x)
+
+        for ele in x:
+            id = ele["e"]+ele["s"]+ele["name"]
+            del self.episodes[id]
+    
+    def rem_episodes_by_id(self, ids):
+        for id in ids:
+            del self.episodes[id]
+
+    def get_episode_by_status(self, x):
+        for ele in self.episodes:
+
+            t = self.episodes[ele]
+            if t.get_dict()["status"] == x:
+                return t
+
+    def get_episodes_as_array_dict(self):
         ret = []
-        for ele in self.__episodes:
-            ret.append(ele.get_dict())
+        for ele in self.episodes:
+
+            t = self.episodes[ele]
+            ret.append(t.get_dict())
         return ret
 
 
-    def add_episode(self, episode):
-        self.__episodes.append(episode)
-
-
-    def add_episode_as_dict(self, ep):
-        
-        for ele in ep:
-
-            s = ele["s"]
-            e = ele["e"]
-            name = ele["name"]
-            link = ele["link"]
-            path = ele["path"]
-
-            self.__episodes.append(episode(s, e, name, link, path))
-
-
-    def get_episode_by_status(self, x):
-        for ele in self.__episodes:
-            if ele.status==x:
-                return ele
-        return None
-
-    def get_episode_by_id(self, id):
-        if len(self._shared__episodes)>id:
-            return self._shared__episodes[id]
-        return None
-
-    
-    
-    def get_bot(self):
-        return self.__bot
-'''
