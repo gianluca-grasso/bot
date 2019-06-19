@@ -66,6 +66,11 @@ class genio:
         t = re.search("(\d{1,3})[x|e](\d{1,3})", link, re.M|re.I)
         return {'s':int(t.group(1)),'e':int(t.group(2))}
 
+    def valid_name(self, name):
+        for ele in ["\\","/",":","*","?","\"","<",">","|"]:
+            name = name.replace(ele,"")
+        return name
+
     def __init__(self):
         if os.path.exists("session.pkl"):
             fr = open("session.pkl","rb")
@@ -186,7 +191,7 @@ class genio:
 
             
             ele["img"] = "http://127.0.0.1:5000/static/tmp/"+name+ext
-            path = "static\\tmp\\"+name+ext
+            path = "static\\tmp\\"+self.valid_name(name+ext)
 
             #se il file esiste non lo riscarico
             if os.path.isfile(path):
@@ -266,14 +271,18 @@ class genio:
             '''
 
             element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "videerlay")))
-            element.click()
 
             while 1:
+                element.click()
                 src = driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
 
                 if src!="":
                     driver.close()
                     return src
+
+                time.sleep(1)
+            
+
 
     def get_src_from_link_with_selenium(self, link):
         driver = webdriver.Firefox()

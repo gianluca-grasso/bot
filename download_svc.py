@@ -20,7 +20,7 @@ def download_th(num):
         #x.mock_start()
         bot = genio()
         x.start(bot)
-        #data.rem_episodes(x)
+        data.rem_episodes_by_id([x.get_id()])
 
 
 @app.route("/download", methods=['POST'])

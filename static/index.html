@@ -150,9 +150,10 @@
             }
 
             .progressbar .bar{
-                width: 0px;
-                height: 20px;
                 background: dodgerblue;
+                height: 100%;
+                padding: 2px;
+                box-sizing: border-box;
             }
 
         </style>
@@ -263,6 +264,9 @@
 
 
             function get_downloads(callback){
+
+                console.log("aggiorno");
+
                 ajax("GET", "http://127.0.0.1:5001/get_downloads", "", "", function(x){
                     var list = JSON.parse(x);
 
@@ -278,17 +282,19 @@
                         if (target==undefined){
                             
                             var tmp = "<tr id='"+id+"'><td><img src='static/pause.png'/><img src='static/stop.png'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
-                            tmp += "<div class='progressbar'><div id='bar'></div></div>";//"<progress value='"+ele.cpos+"' max=''>0</progress>";
+                            tmp += "<div class='progressbar'><div class='bar'></div></div>";
                             tmp += "</td></tr>";
                             
                             downloads.children[0].children[0].innerHTML += tmp;
                             
                         }else{
-                            //target.children[2].firstChild.value = ele["cpos"];
-                            //target.children[2].firstChild.max = ele["len"];
-                            var per = Math.round(ele["cpos"]*100/ele["len"]);
-                            target.children[2].firstChild.innerHTML = per;
-                            target.children[2].firstChild.style.width = per+"px";
+                            
+                            console.log(ele["len"]);
+                            var per = (ele["len"]==undefined?0:Math.round(ele["cpos"]*100/ele["len"]));
+
+                            
+                            target.children[2].firstChild.children[0].innerHTML = per;
+                            target.children[2].firstChild.children[0].style.width = per+"px";
                         }
                     }
                     

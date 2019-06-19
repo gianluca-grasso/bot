@@ -32,6 +32,9 @@ class episode:
     def get_dict(self):
         return self.__dict__
 
+    def get_id(self):
+        return str(self.e)+str(self.s)+self.name
+
     def mock_start(self):
 
         self.len = 2000
@@ -56,6 +59,7 @@ class episode:
         
 
         if self.src!=None and self.len!=None:
+            
             print("inizio download")
             nb = self.len - self.cpos
             headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0','Range': 'bytes='+str(self.cpos)+'-'+str(nb)}
@@ -89,48 +93,11 @@ class episode:
         return False
 
 
-'''
-class episodes:
-    
-
-    def __init__(self):
-        self.episodes = []
-
-    def get_episodes(self):
-        return self.episodes
-
-    def get_episodes_as_array_dict(self):
-        ret = []
-        for ele in self.episodes:
-            ret.append(ele.get_dict())
-        return ret
-
-    def add_episode(self, episode):
-        self.episodes.append(episode)
-    
-    def add_esisode_as_json_or_dict(self, x):
-
-        if type(x).__name__ == "str":
-            x = json.loads(x)
-        
-
-        for ele in x:
-            id = ele["e"]+ele["s"]+ele["name"]
 
 
-            self.episodes.append(episode(**ele))
 
 
-    def get_episode_by_status(self, x):
-        for ele in self.episodes:
-            if ele.get_dict()["status"] == x:
-                return ele
 
-        return None
-
-    def rem_episode(self, episode):
-        self.episodes.remove(episode)
-''' 
 
 
 
@@ -149,18 +116,13 @@ class episodes:
         
 
         for ele in x:
-            id = ele["e"]+ele["s"]+ele["name"]
-            self.episodes[id] = episode(**ele)
+            epi = episode(**ele)
+            id = epi.get_id()
 
+            #aggiunge l'episodio solo se non già presente
+            if self.episodes[id] == None:
+                self.episodes[id] = epi
 
-    def rem_episodes_as_json_or_dict(self, x):
-
-        if type(x).__name__ == "str":
-            x = json.loads(x)
-
-        for ele in x:
-            id = ele["e"]+ele["s"]+ele["name"]
-            del self.episodes[id]
     
     def rem_episodes_by_id(self, ids):
         for id in ids:
