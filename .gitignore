@@ -1,1 +1,6 @@
-static/tmp/*
+static/tmp/
+.vscode/
+__pycache__
+geckodriver.log
+session.pkl
+test.py

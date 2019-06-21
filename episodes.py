@@ -24,16 +24,21 @@ class episode:
         self.name = name
         self.link = link
         self.path = path
-        self.src = None
+
+        #parametri che devono essere calcolati
         self.status = 0
         self.cpos = 0
+        self.src = None
         self.len = None
 
     def get_dict(self):
         return self.__dict__
 
+    def get_src(self, bot):
+        self.src = bot.get_src_with_selenium_exp(self.link)
+
     def get_id(self):
-        return str(self.e)+str(self.s)+self.name
+        return str(self.s)+str(self.e)+self.name
 
     def mock_start(self):
 
@@ -120,7 +125,7 @@ class episodes:
             id = epi.get_id()
 
             #aggiunge l'episodio solo se non già presente
-            if self.episodes[id] == None:
+            if not id in self.episodes:
                 self.episodes[id] = epi
 
     

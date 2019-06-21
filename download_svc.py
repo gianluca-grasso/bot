@@ -4,23 +4,19 @@ from lib import genio
 import json
 import _thread
 import time
+import socket
 app = Flask(__name__)
 
 
-def download_th(num):
-    global data
 
-    while 1:
-        time.sleep(1)
 
-        x = data.get_episode_by_status(0)
-        if x==None:
-            continue
 
-        #x.mock_start()
-        bot = genio()
-        x.start(bot)
-        data.rem_episodes_by_id([x.get_id()])
+
+
+
+
+def flask_th():
+    app.run(port=5001)
 
 
 @app.route("/download", methods=['POST'])
@@ -53,5 +49,18 @@ if __name__ == "__main__":
     global data
     data = episodes()
 
-    th = _thread.start_new_thread(download_th, (0,) )
-    app.run(port=5001)
+
+
+    th0 = _thread.start_new_thread(flask_th, ())
+
+
+
+
+    while 1:
+        time.sleep(5)
+
+        x = data.get_episode_by_status(0)
+        if x != None:
+            
+            x.start()
+            #print("download:",x.get_id())

@@ -15,7 +15,7 @@ import json
 
 class genio:
 
-    __target = "https://ilgeniodellostreaming.pw/"
+    __target = "https://ilgeniodellostreaming.se/"
     __session = None
     __episodes = None
     __num = 0
@@ -87,7 +87,7 @@ class genio:
 
 
         tmp = []
-        tmp.append("var t = 'ilgeniodellostreaming.pw'")#integrare
+        tmp.append("var t = '"+self.__target[self.__target.find("//")+2:self.__target.rfind("/")]+"'")#integrare
 
         a = js.find("var s,t,o,p")+31
         b = js.find(";",a)
@@ -282,88 +282,32 @@ class genio:
 
                 time.sleep(1)
             
-
-
-    def get_src_from_link_with_selenium(self, link):
+    def get_src_with_selenium_exp(self, link):
         driver = webdriver.Firefox()
         driver.install_addon(os.getcwd()+"\\ublock.xpi")
         driver.get(link)
 
 
-        t=None
+        element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+        
+        src = element.get_attribute("src")
+        driver.switch_to_frame(element)
+
+        element = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "videerlay")))
+        time.sleep(1)
+        element.click()
+
+
         while 1:
-            try:
-                t = driver.find_element_by_tag_name("iframe")
-                break
-            except:
-                print("wait iframe..")
+            
+            src = driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
+
+            if src!="":
+                driver.close()
+                return src
+
             time.sleep(1)
 
-
-        src = t.get_attribute("src")
-        print(src)
-        driver.switch_to_frame(t)
-
-
-        #https://openload.co/embed/LfB0cwki814/The.Blacklist.5x12.Il.Cuoco.WEBMux.iTtaliAN.1080p.HD.H264.mkv.mp4
-        #https://ilgeniodellostreaming.pw/player/player.php?id=e9c934cb-ba36-4f1b-8fe5-495d3fd682dd
-        #print(t.get_attribute("src"))
-
-
-        if src.find("ilgenio")>0:
-            while 1:
-                try:
-                    t = driver.find_element_by_id("videerlay")
-                    break
-                except:
-                    print("wait overlay..")
-                time.sleep(2)
-
-
-            while 1:
-                time.sleep(1)
-                video = driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
-                if src!="":
-                    print("src >>>>>",src)
-                    return src
-
-        
-        
-        #driver.execute_script("document.getElementById('playerads').remove()")
-        
-
-        
-        while 1:
-            try:
-                t = driver.find_element_by_id("videooverlay")
-                break
-            except:
-                print("wait overlay..")
-            time.sleep(2)
-
-        
-        while 1:
-            try:
-                t.click()
-                break
-            except:
-                print("emh..")
-                driver.execute_script("var divs = document.getElementsByTagName('div'); for (var c=0;c<divs.length;c++) if (divs[c].style.zIndex>100) divs[c].remove();")
-            time.sleep(1)
-
-        while 1:
-            try:
-                x = driver.find_element_by_id("olvideo_html5_api")
-                break
-            except:
-                print("attendo video")
-            time.sleep(1)
-
-
-
-        src = x.get_attribute("src")
-        driver.close()
-        return src
 
     def get_session(self):
         return self.__session
