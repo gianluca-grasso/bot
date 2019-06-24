@@ -35,6 +35,15 @@ def get_downloads():
     return Response(json.dumps(t), mimetype='application/json')
         
 
+@app.route("/rem_downloads_by_id/<id>", methods=['GET'])
+def rem_downloads(id):
+    global data
+
+    data.rem_episodes_by_id(id)
+
+    return Response(status=200)
+
+'''
 @app.route("/rem_downloads_by_id", methods=['POST'])
 def rem_downloads():
     global data
@@ -43,7 +52,7 @@ def rem_downloads():
     data.rem_episodes_by_id(t)
 
     return Response(status=200)
-
+'''
 
 if __name__ == "__main__":
     global data
@@ -53,14 +62,13 @@ if __name__ == "__main__":
 
     th0 = _thread.start_new_thread(flask_th, ())
 
-
-
-
     while 1:
         time.sleep(5)
 
         x = data.get_episode_by_status(0)
         if x != None:
             
-            x.start()
+            bot = genio()
+            x.start1(bot)
+            data.rem_episodes_by_id(x.get_id())
             #print("download:",x.get_id())

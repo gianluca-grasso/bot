@@ -8,33 +8,17 @@ import json
 
 
 
-class abc:
-    
-    def __init__(self, a, b, c):
-        self.a = a
-        self.b = b
-        self.c = c
-
-    def show(self):
-        return str(self.a)+" - "+str(self.b)+" - "+str(self.c)
-
-data = {}
-
-def add(ele):
-    id = str(ele.a)+str(ele.b)+str(ele.c)
-    data[id] = ele
+def test(x):
+    if isinstance(x, list):
+        print(x,"array")
+    else:
+        print(x,"scalare")
 
 
-
-add(abc(0,0,0))
-add(abc(1,0,0))
-add(abc(0,1,0))
-add(abc(1,1,0))
-
-for ele in data:
-    print(data[ele].show())
-
-
+test(4)
+test([4,5,3])
+test([4,53,34,6])
+test(45)
 
 
 

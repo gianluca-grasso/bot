@@ -162,10 +162,11 @@
 
             var db = {};
             var interval;
+            var interval_enabled = false;
 
 
             window.onload=function(){
-                downloads_update();
+                downloads_daemon();
             }
 
 
@@ -219,7 +220,7 @@
                             x.innerHTML = "<div class='season_flag'>Stagione"+s+"</div>";
                         }
 
-                        x.innerHTML += "<div class='episode'><div tabindex='"+c+"' data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
+                        x.innerHTML += "<div class='episode'><div tabindex='"+(c+1)+"' data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
                         //x.innerHTML += "<div class='episode'><input data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' type='checkbox'/><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
                     }
 
@@ -253,11 +254,19 @@
             }
 
 
-            function downloads_update(){
+            function downloads_daemon(){
                 clearInterval(interval);
                 interval = setInterval(function(){
+
+                    interval_enabled=true;
+                    
                     get_downloads(function(num){
-                        if (num==0) clearInterval(interval);
+                        if (num==0){
+
+                            clearInterval(interval);
+                            interval_enabled=false;
+
+                        }
                     });
                 },1000);
             }
@@ -265,12 +274,49 @@
 
             function get_downloads(callback){
 
-                console.log("aggiorno");
+                
 
                 ajax("GET", "http://127.0.0.1:5001/get_downloads", "", "", function(x){
                     var list = JSON.parse(x);
 
 
+                    
+
+                    var tbody = document.getElementById("downloads_table");
+                    var html = "";
+
+                    for (c in list){
+                        var ele = list[c];
+                        var per = (ele["len"]==undefined?0:Math.round(ele["cpos"]*100/ele["len"]));
+
+                        html += "<tr><td><input type='button' value='Stop'/><input type='button' value='Pause'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
+                        html += "<div class='progressbar'><div class='bar' style='width: "+per+"px'>"+per+"</div></div>";
+                        html += "</td></tr>";
+
+                    }
+
+                    
+
+                    tbody.innerHTML = html;
+
+
+                    
+                    /*
+                    var x = document.getElementsByClassName("epi");
+                    
+                    
+                    
+                    for (c=0;c<x.length;c++){
+                        var ele = x[c];
+                        var v = parseInt(ele.getAttribute("data-n"));
+                        if (v>4) ele.remove();
+                        else{
+                            ele.setAttribute("data-n", v+1);
+                        }
+                    }
+
+
+                    
                     var downloads = document.getElementById("downloads");
 
                     for (c in list){
@@ -281,23 +327,24 @@
                         var target = document.getElementById(id);
                         if (target==undefined){
                             
-                            var tmp = "<tr id='"+id+"'><td><img src='static/pause.png'/><img src='static/stop.png'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
+                            var tmp = "<tr class='epi' data-n='0' id='"+id+"'><td><img src='static/pause.png'/><img src='static/stop.png'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
                             tmp += "<div class='progressbar'><div class='bar'></div></div>";
                             tmp += "</td></tr>";
                             
                             downloads.children[0].children[0].innerHTML += tmp;
                             
                         }else{
-                            
-                            console.log(ele["len"]);
+
                             var per = (ele["len"]==undefined?0:Math.round(ele["cpos"]*100/ele["len"]));
 
-                            
                             target.children[2].firstChild.children[0].innerHTML = per;
                             target.children[2].firstChild.children[0].style.width = per+"px";
+                            target.setAttribute("data-n", 0);
+                            
+
                         }
                     }
-                    
+                    */
                     if (callback !== undefined) callback(list.length);
 
                 });
@@ -353,7 +400,7 @@
                 console.log(list);
 
                 ajax("POST", "http://127.0.0.1:5001/download", JSON.stringify(list), "", function(x){
-                    downloads_update();
+                    downloads_daemon();
                 });
 
 
@@ -377,6 +424,8 @@
         <div id = "downloads">
             <table>
                 <tr><th>cmd</th><th>name</th><th>status</th></tr>
+                <tbody id="downloads_table">
+                </tbody>
             </table>
         </div>
         

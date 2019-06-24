@@ -1,6 +1,14 @@
 from lib import genio
+from parallel import Parallel_Downloader
+import threading
 import json
 import time
+
+
+
+
+
+
 
 
 
@@ -31,6 +39,7 @@ class episode:
         self.src = None
         self.len = None
 
+
     def get_dict(self):
         return self.__dict__
 
@@ -54,7 +63,23 @@ class episode:
         if self.status==0:
             self.status=4
 
-    def start(self, bot):
+
+    def start0(self, bot):
+
+        if self.src==None:
+            self.src = bot.get_src_with_selenium(self.link)
+        
+        if self.len==None:
+            self.len = bot.get_length(self.src)
+        
+
+        if self.src!=None and self.len!=None:
+
+            x = Parallel_Downloader(self.src, self.path)
+            x.download(4)
+
+
+    def start1(self, bot):
 
         if self.src==None:
             self.src = bot.get_src_with_selenium(self.link)
@@ -130,8 +155,13 @@ class episodes:
 
     
     def rem_episodes_by_id(self, ids):
-        for id in ids:
-            del self.episodes[id]
+
+        #molto permissiva
+        if isinstance(ids, list):
+            for id in ids:
+                del self.episodes[id]
+        else:
+            del self.episodes[ids]
 
     def get_episode_by_status(self, x):
         for ele in self.episodes:
@@ -147,5 +177,7 @@ class episodes:
             t = self.episodes[ele]
             ret.append(t.get_dict())
         return ret
+
+
 
 
