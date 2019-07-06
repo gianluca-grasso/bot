@@ -72,5 +72,3 @@ if __name__ == "__main__":
             x.start_fast(bot)
             data.rem_episodes_by_id(x.get_id())
             #print("download:",x.get_id())
-
-    print("\n\n\nESCO PERCHE NON HO PIU NNT DA FARE")
