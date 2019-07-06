@@ -63,8 +63,18 @@ class episode:
         if self.status==0:
             self.status=4
 
+    def watchdog(self, x):
+        while 1:
+            print("th aggiorna: "+str(self.cpos))
+            time.sleep(1)
+            self.cpos = x.get_cpos()
 
-    def start0(self, bot):
+            if self.cpos==self.len:
+                break
+
+
+
+    def start_fast(self, bot):
 
         if self.src==None:
             self.src = bot.get_src_with_selenium(self.link)
@@ -75,11 +85,16 @@ class episode:
 
         if self.src!=None and self.len!=None:
 
-            x = Parallel_Downloader(self.src, self.path)
-            x.download(4)
+            path = self.path+self.s+"x"+self.e+" "+self.name+".mp4"
+            x = Parallel_Downloader(self.src, path)
+
+            t = threading.Thread(target=self.watchdog, args=(x, ))
+            t.start()
+
+            x.download(10)
 
 
-    def start1(self, bot):
+    def start_normal(self, bot):
 
         if self.src==None:
             self.src = bot.get_src_with_selenium(self.link)

@@ -98,21 +98,29 @@ class Parallel_Downloader:
             self.__blocks.append(block)
 
 
-        
-
+    def get_cpos(self):
+        return self.__downloaded
 
 
     def download(self, nth):
 
-        self.__blocks = self.__as_block(10)#20*Mb)
-        while len(self.__blocks)>0:
+        self.__blocks = self.__as_block(10*Mb)#20*Mb)
 
-            ava = nth - threading.active_count()+1
+        try:
 
-            for c in range(ava):
-                block = self.__blocks.pop(0)
-                t = threading.Thread(target=self.__block_download, args=(block, ))
-                t.start()
+            while len(self.__blocks)>0 and threading.active_count()>2:
+
+                time.sleep(1)
+                ava = nth - threading.active_count()-2
+
+                for c in range(ava):
+                    print("\n\nAVVIO: "+str(c)+"\n\n")
+                    block = self.__blocks.pop(0)
+                    t = threading.Thread(target=self.__block_download, args=(block, ))
+                    t.start()
+
+        except:
+            print("errore")
 
 
     def get_len(self):
