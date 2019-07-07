@@ -24,6 +24,7 @@ class episode:
     cpos = 0
     len = None
     Mb = 1024*1024
+    percentage = 0
 
 
     def __init__(self, s, e, name, link, path):
@@ -33,11 +34,8 @@ class episode:
         self.link = link
         self.path = path
 
-        #parametri che devono essere calcolati
         self.status = 0
-        self.cpos = 0
-        self.src = None
-        self.len = None
+        self.percentage = 0
 
 
     def get_dict(self):
@@ -49,51 +47,43 @@ class episode:
     def get_id(self):
         return str(self.s)+str(self.e)+self.name
 
-    def mock_start(self):
-
-        self.len = 2000
-
-        for c in range(0,2200,100):
-            time.sleep(1)
-            self.cpos = c
-
-            if self.status!=0:
-                break
-        
-        if self.status==0:
-            self.status=4
-
     def watchdog(self, x):
-        while 1:
-            print("th aggiorna: "+str(self.cpos))
-            time.sleep(1)
-            self.cpos = x.get_cpos()
 
-            if self.cpos==self.len:
+        time.sleep(5)
+
+        while 1:
+
+            if x==None:
+                print("\n----------------------------------------\nDOWNLOAD FINITO\n----------------------------------------\n")
                 break
+
+            self.percentage = x.get_percentage()
+            print("th aggiorna: "+str(self.percentage))
+            time.sleep(1)
+            
+
+        self.status = 4
 
 
 
     def start_fast(self, bot):
 
-        if self.src==None:
-            self.src = bot.get_src_with_selenium(self.link)
         
-        if self.len==None:
-            self.len = bot.get_length(self.src)
+        src = bot.get_src_with_selenium(self.link)
         
 
-        if self.src!=None and self.len!=None:
 
+        if src!=None:
             path = self.path+self.s+"x"+self.e+" "+self.name+".mp4"
-            x = Parallel_Downloader(self.src, path)
+            x = Parallel_Downloader(src, path)
 
             t = threading.Thread(target=self.watchdog, args=(x, ))
+            t.daemon = True
             t.start()
 
-            x.download(10)
+            x.download(8)
 
-
+    '''
     def start_normal(self, bot):
 
         if self.src==None:
@@ -136,6 +126,7 @@ class episode:
                 return True
         
         return False
+        '''
 
 
 

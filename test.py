@@ -4,24 +4,25 @@ from multiprocessing import sharedctypes
 import time
 import numpy as np
 import json
+import os
+
+
+
+path = "C:\\Users\\bingo\\Desktop\\sp\\17x10 Lo hobbit.mp4"
+lm = os.path.getmtime(path)
+
+print(lm)
 
 
 
 
-def test(x):
-    if isinstance(x, list):
-        print(x,"array")
-    else:
-        print(x,"scalare")
+import time
 
+lm =          "Wed, 17 Apr 2019 15:14:01 GMT"
+temp_time = time.strptime(lm, "%a, %d %b %Y %X %Z")
+timestamp = time.mktime(temp_time)
 
-test(4)
-test([4,5,3])
-test([4,53,34,6])
-test(45)
-
-
-
+print(timestamp)
 
 
 

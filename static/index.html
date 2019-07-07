@@ -23,6 +23,7 @@
                 box-sizing: border-box;
                 margin: auto;
                 margin-top: 80px;
+                background: white;
             }
 
             #menu{
@@ -101,7 +102,24 @@
                 background: white;
             }
 
-            .check{
+            .season_flag label{
+                float: left;
+                font-style: italic;
+            }
+
+            .season_flag .check{
+                float: left;
+                width: 3.2em;
+                height: 1.6em;
+                border: 0.1em solid lightgray;
+                border-radius: 1em;
+                margin-left: 2.0em;
+                box-sizing: border-box;
+                position: relative;
+                transition: background-color 1s ease;
+            }
+
+            .episode .check{
                 width: 3.2em;
                 height: 1.6em;
                 border: 0.1em solid lightgray;
@@ -217,7 +235,7 @@
                             x.className = "season_box";
                             document.getElementById("main").appendChild(x);
 
-                            x.innerHTML = "<div class='season_flag'>Stagione"+s+"</div>";
+                            x.innerHTML = "<div class='season_flag'><label>Season "+s+"</label><div data-e='*' data-s='"+s+"' onclick='check_click(this)' class='check'><div class='block'></div></div></div>";
                         }
 
                         x.innerHTML += "<div class='episode'><div tabindex='"+(c+1)+"' data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
@@ -287,9 +305,9 @@
 
                     for (c in list){
                         var ele = list[c];
-                        var per = (ele["len"]==undefined?0:Math.round(ele["cpos"]*100/ele["len"]));
-
-                        html += "<tr><td><input type='button' value='Stop'/><input type='button' value='Pause'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
+                        var per = ele["percentage"];//(ele["len"]==undefined?0:Math.round(ele["cpos"]*100/ele["len"]));
+                        console.log(ele);
+                        html += "<tr><td><input type='button' value='Stop'/></td><td>"+ele.s+"x"+ele.e+" - "+shortner(ele.name,20)+"</td><td>";
                         html += "<div class='progressbar'><div class='bar' style='width: "+per+"px'>"+per+"</div></div>";
                         html += "</td></tr>";
 
@@ -362,11 +380,26 @@
                 if (block.className.indexOf("blockon")>0){
                     block.className = "block";
                     check.className = "check";
-                    delete db[s+"x"+e];
+
+                    if (e=="*"){
+                        var checks = document.getElementById("season_"+s).getElementsByClassName("check");
+                        for (c=1;c<checks.length;c++){
+                            var ele = checks[c];
+                            ele.click();
+                        }
+                    }else delete db[s+"x"+e];
                 }else{
                     block.className = "block blockon";
                     check.className = "check checkon";
-                    db[s+"x"+e] = {'s':s, 'e':e, 'name':name, 'link':link};
+
+                    if (e=="*"){
+
+                        var checks = document.getElementById("season_"+s).getElementsByClassName("check");
+                        for (c=1;c<checks.length;c++){
+                            var ele = checks[c];
+                            ele.click();
+                        }
+                    }else db[s+"x"+e] = {'s':s, 'e':e, 'name':name, 'link':link};
                 }
                 
             }

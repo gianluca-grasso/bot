@@ -43,16 +43,6 @@ def rem_downloads(id):
 
     return Response(status=200)
 
-'''
-@app.route("/rem_downloads_by_id", methods=['POST'])
-def rem_downloads():
-    global data
-
-    t = json.loads(request.data)["ids"]
-    data.rem_episodes_by_id(t)
-
-    return Response(status=200)
-'''
 
 if __name__ == "__main__":
     global data
