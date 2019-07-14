@@ -20,6 +20,7 @@ class genio:
     __episodes = None
     __num = 0
     __headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0'}
+    __driver = None
 
     def skip_503(self, mode, link):
 
@@ -53,8 +54,8 @@ class genio:
 
         return req
 
-    def get_length(self, link):
-        req = self.skip_503("HEAD", link)
+    def get_length(self, src):
+        req = self.skip_503("HEAD", src)
 
         #if req.status_code != 200:
         #    return None
@@ -72,6 +73,10 @@ class genio:
         return name
 
     def __init__(self):
+
+        self.__driver = webdriver.Firefox()
+        self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+
         if os.path.exists("session.pkl"):
             fr = open("session.pkl","rb")
             self.__session = pickle.load(fr)
@@ -216,9 +221,9 @@ class genio:
         return ret
 
     def get_src_with_selenium(self, link):
-        driver = webdriver.Firefox()
-        driver.install_addon(os.getcwd()+"\\ublock.xpi")
-        driver.get(link)
+        #driver = webdriver.Firefox()
+        
+        self.__driver.get(link)
 
         
         t = self.get_cookie()
@@ -229,16 +234,16 @@ class genio:
             value = t[name]
             #t = cookie.keys()
             #print(t)
-            driver.add_cookie({'name':name, 'value':value})
+            self.__driver.add_cookie({'name':name, 'value':value})
         
 
         #driver.get(link)
 
 
-        element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+        element = WebDriverWait(self.__driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
         
         src = element.get_attribute("src")
-        driver.switch_to_frame(element)
+        self.__driver.switch_to_frame(element)
 
 
         if src.find("openload")>0:
@@ -247,7 +252,7 @@ class genio:
 
             while 1:
                 try:
-                    driver.execute_script("var divs = document.getElementsByTagName('div'); for (var c=0;c<divs.length;c++) if (divs[c].style.zIndex>100) divs[c].remove();")
+                    self.__driver.execute_script("var divs = document.getElementsByTagName('div'); for (var c=0;c<divs.length;c++) if (divs[c].style.zIndex>100) divs[c].remove();")
                     element = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, "videooverlay")))
                     element.click()
                     break
@@ -255,10 +260,10 @@ class genio:
                     pass
 
             while 1:
-                src = driver.find_element_by_id("olvideo_html5_api").get_attribute("src")
+                src = self.__driver.find_element_by_id("olvideo_html5_api").get_attribute("src")
 
                 if src!="":
-                    driver.close()
+                    self.__driver.close()
                     return src
 
         else:
@@ -267,43 +272,43 @@ class genio:
             element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
             
 
-            driver.switch_to_frame(element)
+            self.__driver.switch_to_frame(element)
             '''
 
-            element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "videerlay")))
+            element = WebDriverWait(self.__driver, 10).until(EC.element_to_be_clickable((By.ID, "videerlay")))
 
             while 1:
                 element.click()
-                src = driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
+                src = self.__driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
 
                 if src!="":
-                    driver.close()
+                    self.__driver.close()
                     return src
 
                 time.sleep(1)
             
     def get_src_with_selenium_exp(self, link):
-        driver = webdriver.Firefox()
-        driver.install_addon(os.getcwd()+"\\ublock.xpi")
-        driver.get(link)
+        #self.__driver = webdriver.Firefox()
+        #self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+        self.__driver.get(link)
 
 
-        element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+        element = WebDriverWait(self.__driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
         
         src = element.get_attribute("src")
-        driver.switch_to_frame(element)
+        self.__driver.switch_to_frame(element)
 
-        element = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.ID, "videerlay")))
+        element = WebDriverWait(self.__driver, 20).until(EC.element_to_be_clickable((By.ID, "videerlay")))
         time.sleep(1)
         element.click()
 
 
         while 1:
             
-            src = driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
+            src = self.__driver.find_element_by_id("dogevideo_html5_api").get_attribute("src")
 
             if src!="":
-                driver.close()
+                #driver.close()
                 return src
 
             time.sleep(1)

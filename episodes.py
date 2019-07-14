@@ -3,6 +3,7 @@ from parallel import Parallel_Downloader
 import threading
 import json
 import time
+import os
 
 
 
@@ -32,101 +33,102 @@ class episode:
         self.e = e
         self.name = name
         self.link = link
-        self.path = path
-
+        self.path = path+s+"x"+e+" "+self.path_for_windows(name)+".mp4"
+        
         self.status = 0
         self.percentage = 0
+        self.src = None
+        self.len = 0
 
 
     def get_dict(self):
         return self.__dict__
 
-    def get_src(self, bot):
-        self.src = bot.get_src_with_selenium_exp(self.link)
+    
+    def path_for_windows(self, path):
+        for ele in ["/",":","*","?","\"","<",">","|","\\"]:
+            path = path.replace(ele,"")
+        return path
 
+    
     def get_id(self):
         return str(self.s)+str(self.e)+self.name
 
+
+    def is_already_downloaded(self):
+        if os.path.isfile(self.path) and os.path.getsize(self.path)==self.len:
+            return True
+        return False
+    
+    
+    def preload(self, bot):
+        
+        self.src = bot.get_src_with_selenium_exp(self.link)
+        self.len = bot.get_length(self.src)
+
+        if self.is_already_downloaded():
+            self.status = 3
+        else:
+            self.status = 1
+
+
+
+    
     def watchdog(self, x):
 
         time.sleep(5)
 
-        while 1:
-
-            if x==None:
-                print("\n----------------------------------------\nDOWNLOAD FINITO\n----------------------------------------\n")
-                break
+        while self.status==2:
 
             self.percentage = x.get_percentage()
             print("th aggiorna: "+str(self.percentage))
             time.sleep(1)
-            
-
-        self.status = 4
-
-
+        
+        print("\n----------------------------------------\nDOWNLOAD FINITO\n----------------------------------------\n")
+    
+    '''
+    0 = wait
+    1 = src preloaded
+    2 = downloading
+    3 = done
+    4 = error
+    
+    '''
 
     def start_fast(self, bot):
-
-        
-        src = bot.get_src_with_selenium(self.link)
-        
-
-
-        if src!=None:
-            path = self.path+self.s+"x"+self.e+" "+self.name+".mp4"
-            x = Parallel_Downloader(src, path)
-
-            t = threading.Thread(target=self.watchdog, args=(x, ))
-            t.daemon = True
-            t.start()
-
-            x.download(8)
-
-    '''
-    def start_normal(self, bot):
 
         if self.src==None:
             self.src = bot.get_src_with_selenium(self.link)
         
-        if self.len==None:
-            self.len = bot.get_length(self.src)
-        
 
-        if self.src!=None and self.len!=None:
+
+        if self.src!=None:
             
-            print("inizio download")
-            nb = self.len - self.cpos
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0','Range': 'bytes='+str(self.cpos)+'-'+str(nb)}
-
-            stream = bot.get_session().get(self.src, headers=headers, stream=True)
-
-            print(stream.status_code)
-            if stream.status_code==200 or stream.status_code==206:
-
-                mode = "wb"
-                if self.cpos>0:
-                    mode = "ab"
-                
-
-                path = self.path+self.s+"x"+self.e+" "+self.name+".mp4"
-                fw = open(path, mode)
-                for chunk in stream.iter_content(4096):
-                    self.cpos += len(chunk)
-
-                    fw.write(chunk)
-                    if self.status!=0:
-                        break
-                fw.close()
+            x = Parallel_Downloader(self.src, self.path)
 
 
-                if self.status==0:
-                    self.status=4
-                
-                return True
+            self.status = 2
+            t = threading.Thread(target=self.watchdog, args=(x, ))
+            t.daemon = True
+            t.start()
+
+
+            x.download(8)
+
+
+            self.status = 3
+            
+            
+            
         
-        return False
-        '''
+        print("\nDOWNLOAD COMPLETATO\n")
+
+        
+
+
+
+
+
 
 
 
@@ -169,12 +171,23 @@ class episodes:
         else:
             del self.episodes[ids]
 
-    def get_episode_by_status(self, x):
+    
+
+    def get_episode_by_status(self, status):
         for ele in self.episodes:
 
             t = self.episodes[ele]
-            if t.get_dict()["status"] == x:
+            if t.status == status:
                 return t
+
+    def count_episodes_by_status(self, status):
+        c = 0
+        for ele in self.episodes:
+            
+            t = self.episodes[ele]
+            if t.status == status:
+                c+=1
+        return c
 
     def get_episodes_as_array_dict(self):
         ret = []

@@ -235,7 +235,7 @@
                             x.className = "season_box";
                             document.getElementById("main").appendChild(x);
 
-                            x.innerHTML = "<div class='season_flag'><label>Season "+s+"</label><div data-e='*' data-s='"+s+"' onclick='check_click(this)' class='check'><div class='block'></div></div></div>";
+                            x.innerHTML = "<div class='season_flag'><label>Season "+s+"</label><div data-e='*' data-s='"+s+"' onclick='season_selector(this)' class='check'><div class='block'></div></div></div>";
                         }
 
                         x.innerHTML += "<div class='episode'><div tabindex='"+(c+1)+"' data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
@@ -369,6 +369,20 @@
             }
 
 
+            function season_selector(check){
+                check_click(check);
+
+                var s = check.getAttribute("data-s");
+                var checks = document.getElementById("season_"+s).getElementsByClassName("check");
+
+                for (c=1;c<checks.length;c++){
+                    var ele = checks[c];
+                    if (check.className!=ele.className) ele.click();
+                }
+
+            }
+
+
             function check_click(check){
 
                 var s = check.getAttribute("data-s");
@@ -376,31 +390,19 @@
                 var name = check.getAttribute("data-name");
                 var link = check.getAttribute("data-link");
 
+
+                
                 var block = check.firstChild;
                 if (block.className.indexOf("blockon")>0){
                     block.className = "block";
                     check.className = "check";
-
-                    if (e=="*"){
-                        var checks = document.getElementById("season_"+s).getElementsByClassName("check");
-                        for (c=1;c<checks.length;c++){
-                            var ele = checks[c];
-                            ele.click();
-                        }
-                    }else delete db[s+"x"+e];
+                    if (e!="*") delete db[s+"x"+e];
                 }else{
                     block.className = "block blockon";
                     check.className = "check checkon";
-
-                    if (e=="*"){
-
-                        var checks = document.getElementById("season_"+s).getElementsByClassName("check");
-                        for (c=1;c<checks.length;c++){
-                            var ele = checks[c];
-                            ele.click();
-                        }
-                    }else db[s+"x"+e] = {'s':s, 'e':e, 'name':name, 'link':link};
+                    if (e!="*") db[s+"x"+e] = {'s':s, 'e':e, 'name':name, 'link':link};
                 }
+                
                 
             }
 

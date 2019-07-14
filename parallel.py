@@ -15,7 +15,7 @@ class Parallel_Downloader:
     def __init__(self, src, path):
         self.__src = src
         self.__path = path
-        self.__fw = open(self.__path_for_windows(path),"wb")
+        self.__fw = open(path,"wb")
 
         self.__headers = self.__get_headers()
         self.__len = int(self.__headers.get("Content-Length"))
@@ -30,11 +30,6 @@ class Parallel_Downloader:
     def __lm_to_timestamp(self, lm):
         temp_time = time.strptime(lm, "%a, %d %b %Y %X %Z")
         return time.mktime(temp_time)
-
-    def __path_for_windows(self, path):
-        for ele in ["/",":","*","?","\"","<",">","|"]: #rimettere \\
-            path = path.replace(ele,"")
-        return path
 
     def __get_headers(self):
         r = requests.head(self.__src, allow_redirects=True, verify=False)
@@ -116,14 +111,9 @@ class Parallel_Downloader:
 
 
     def download(self, nth):
-
-        
-        if os.path.isfile(self.__path) and os.path.getsize(self.__path)==self.__len:
-            print("IL FILE E' GIA' PRESENTE")
-            return
         
 
-        self.__blocks = self.__as_block(10*Mb)#20*Mb)
+        self.__blocks = self.__as_block(20*Mb)
         try:
 
             while len(self.__blocks)>0 or threading.active_count()>2:
@@ -135,6 +125,7 @@ class Parallel_Downloader:
                     print("\n\nAVVIO: "+str(c)+"\n\n")
                     block = self.__blocks.pop(0)
                     t = threading.Thread(target=self.__block_download, args=(block, ))
+                    t.daemon = True
                     t.start()
 
         except:
