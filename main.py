@@ -15,11 +15,27 @@ app = Flask(__name__)
 
 
 
+'''
+@app.route("/download", methods=['POST'])
+def download():
+    global data
+
+    t = json.loads(request.data)
+    data.add_esisodes_as_json_or_dict(t)
+    
+    return Response(status=200)
+'''
+
+@app.route("/download", methods=['POST'])
+def download():
+    r = requests.post("http://127.0.0.1:5001/download",data=request.data)
+    return Response(status=r.status_code)
 
 
-
-
-
+@app.route("/get_downloads")
+def get_downloads():
+    r = requests.get("http://127.0.0.1:5001/get_downloads")
+    return Response(r.text, mimetype='application/json')
 
 
 @app.route("/")

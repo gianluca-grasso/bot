@@ -11,8 +11,17 @@ Library Requirements:
     - json
 
 
-pip install selenium
-pip install Flask
-pip install requests
-pip install dukpy
-pip install beautifulsoup4
+pip install selenium Flask requests dukpy beautifulsoup4
+
+Application is composed from 2 part:
+
+    - main.py (front-end manage)
+    - download_svc.py (back-end)
+
+
+Other modules:
+
+    - lib.py            bot library: search, capture sources, ecc
+    - parallel.py       multithreaded downloaderer
+    - index.html        html front-end
+    - episodes.py       episode, episodes classes
