@@ -22,6 +22,8 @@ class genio:
     __headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0'}
     __driver = None
 
+
+
     def skip_503(self, mode, link):
 
         if mode=="GET":
@@ -74,8 +76,8 @@ class genio:
 
     def __init__(self):
 
-        self.__driver = webdriver.Firefox()
-        self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+        self.__driver = None
+        #self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
 
         if os.path.exists("session.pkl"):
             fr = open("session.pkl","rb")
@@ -148,11 +150,12 @@ class genio:
         ret = []
         for item in soup.find_all("div",class_="result-item"):
 
-            A = item.find_all("a")[1].text.lower()
-            B = item.find("a").get("href")
-            C = item.find("img").get("src")
+            name = item.find_all("a")[1].text.lower()
+            link = item.find("a").get("href")
+            img = item.find("img").get("src")
+            img = self.cache_img(img, name)
 
-            ret.append({'name':A, 'link':B, 'img':C})
+            ret.append({'name':name, 'link':link, 'img':img})
 
 
         return ret
@@ -168,9 +171,9 @@ class genio:
         ret = []
 
         for ele in soup.find_all("div",class_="episodiotitle"):
+
             link = ele.a.get("href")
             t = self.__sxe(link)
-
             s = t["s"]
             e = t["e"]
             name = ele.a.text
@@ -182,6 +185,28 @@ class genio:
     def get_cookie(self):
         return self.__session.cookies.get_dict()
 
+
+    def cache_img(self, img, name):
+
+        path = "static\\tmp\\"+self.valid_name(name)
+
+        if not os.path.isfile(path):
+
+            req = self.__session.get(img, headers=self.__headers)
+            if req.status_code == 200:
+
+                fw = open(path, "wb")
+                for chunk in req.iter_content(4096):
+                    fw.write(chunk)
+                fw.close()
+            
+
+        return "http://127.0.0.1:5000/static/tmp/"+name
+
+
+
+
+    '''
     def image_cache(self, data):
 
         ret = []
@@ -219,10 +244,14 @@ class genio:
 
 
         return ret
+    '''
 
     def get_src_with_selenium(self, link):
-        #driver = webdriver.Firefox()
         
+        if self.__driver==None:
+            self.__driver = webdriver.Firefox()
+            self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+
         self.__driver.get(link)
 
         
@@ -288,8 +317,11 @@ class genio:
                 time.sleep(1)
             
     def get_src_with_selenium_exp(self, link):
-        #self.__driver = webdriver.Firefox()
-        #self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+
+        if self.__driver==None:
+            self.__driver = webdriver.Firefox()
+            self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+
         self.__driver.get(link)
 
 

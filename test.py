@@ -8,21 +8,11 @@ import os
 
 
 
-path = "C:\\Users\\bingo\\Desktop\\sp\\17x10 Lo hobbit.mp4"
-lm = os.path.getmtime(path)
+a = [{"a":6},{"a":3},{"a":12},{"a":4},{"a":1},{"a":7},{"a":2}]
 
-print(lm)
+a = sorted(a, key = lambda key: key["a"])[::-1]
 
-
-
-
-import time
-
-lm =          "Wed, 17 Apr 2019 15:14:01 GMT"
-temp_time = time.strptime(lm, "%a, %d %b %Y %X %Z")
-timestamp = time.mktime(temp_time)
-
-print(timestamp)
+print(a)
 
 
 

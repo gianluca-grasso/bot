@@ -98,9 +98,8 @@ class episode:
     def start_fast(self, bot):
 
         if self.src==None:
-            self.src = bot.get_src_with_selenium(self.link)
-        
-
+            self.src = bot.get_src_with_selenium_exp(self.link)
+            
 
         if self.src!=None:
             
