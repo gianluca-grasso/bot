@@ -12,6 +12,8 @@ Mb = 1024*1024
 
 class Parallel_Downloader:
 
+    active_th = 0
+
     def __init__(self, src, path):
         self.__src = src
         self.__path = path
@@ -59,12 +61,16 @@ class Parallel_Downloader:
 
 
     def __block_download(self, block):
-        
         src = block["src"]
         start = block["start"]
         end = block["end"]
         fw = block["fw"]
         lock = block["lock"]
+
+
+        lock.acquire()
+        self.active_th+=1
+        lock.release()
 
 
         headers = {"Range":"bytes="+str(start)+"-"+str(end),"Connection":"close"}
@@ -105,14 +111,42 @@ class Parallel_Downloader:
             block["start"] += count
             self.__blocks.append(block)
 
+        
+        
+        lock.acquire()
+        self.active_th-=1
+        lock.release()
+
+
+
 
     def get_percentage(self):
         return round((self.__downloaded/self.__len)*100)
 
 
     def download(self, nth):
+
         
 
+        self.__blocks = self.__as_block(20*Mb)
+
+        try:
+            while self.__len != self.__downloaded or self.active_th>0:
+                time.sleep(1)
+
+                ava = nth-self.active_th
+                for c in range(ava):
+                    print("\n\nAVVIO: "+str(c)+"\n\n")
+                    block = self.__blocks.pop(0)
+                    t = threading.Thread(target=self.__block_download, args=(block, ))
+                    t.daemon = True
+                    t.start()
+                
+        except Exception as e:
+            print("errore non gestito: "+str(e))
+
+        
+        '''
         self.__blocks = self.__as_block(20*Mb)
         try:
 
@@ -130,6 +164,7 @@ class Parallel_Downloader:
 
         except:
             print("errore")
+        '''
 
 
     def get_len(self):

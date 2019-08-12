@@ -74,8 +74,8 @@ class genio:
 
     def __init__(self):
 
-        self.__driver = webdriver.Firefox()
-        self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+        #self.__driver = webdriver.Firefox()
+        #self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
 
         if os.path.exists("session.pkl"):
             fr = open("session.pkl","rb")
@@ -220,6 +220,7 @@ class genio:
 
         return ret
 
+    '''
     def get_src_with_selenium(self, link):
         #driver = webdriver.Firefox()
         
@@ -268,12 +269,6 @@ class genio:
 
         else:
 
-            '''
-            element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
-            
-
-            self.__driver.switch_to_frame(element)
-            '''
 
             element = WebDriverWait(self.__driver, 10).until(EC.element_to_be_clickable((By.ID, "videerlay")))
 
@@ -286,10 +281,17 @@ class genio:
                     return src
 
                 time.sleep(1)
-            
+    '''
+
+
+
+    
     def get_src_with_selenium_exp(self, link):
-        #self.__driver = webdriver.Firefox()
-        #self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+
+        if self.__driver==None:
+            self.__driver = webdriver.Firefox()
+            self.__driver.install_addon(os.getcwd()+"\\ublock.xpi")
+
         self.__driver.get(link)
 
 
