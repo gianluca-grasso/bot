@@ -1,5 +1,6 @@
-from flask import Flask, Response, request
+from flask import Flask, Response, request, render_template
 from lib import genio
+from config import config
 import json
 import time
 from multiprocessing import Process
@@ -8,6 +9,8 @@ import logging
 import sys
 import pickle
 import requests
+
+
 app = Flask(__name__)
 
 
@@ -26,6 +29,7 @@ def download():
     return Response(status=200)
 '''
 
+'''
 @app.route("/download", methods=['POST'])
 def download():
     r = requests.post("http://127.0.0.1:5001/download",data=request.data)
@@ -36,11 +40,35 @@ def download():
 def get_downloads():
     r = requests.get("http://127.0.0.1:5001/get_downloads")
     return Response(r.text, mimetype='application/json')
+'''
 
 
 @app.route("/")
 def main():
-    return app.send_static_file("index.html")
+
+
+    #config("main.pkl").set_config("last_path","\\\\a\\\\b\\\\".encode("utf8")).save_config("main.pkl")
+
+    path = None
+    #path = config("main.pkl").get_config("last_path").decode("cp1251")
+    if path==None:
+        path = "riempi"
+
+
+    return render_template('index.html', last_path=path)
+    #return app.send_static_file("index.html")
+
+
+'''
+@app.route("/save_last_path", methods=['POST'])
+def save_last_path():
+    global configs
+    configs["last_path"] = request.data
+
+    fw = open("frontend_config.pkl","wb")
+    fw.write(pickle.dumps(configs))
+    fw.close()
+'''
 
 
 @app.route("/find_episodes", methods=['POST'])

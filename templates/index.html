@@ -155,10 +155,12 @@
 
             .episode{
                 display: inline-flex;
+                width: 100%;
             }
 
             .episode label{
                 margin: auto;
+                margin-left: 5px;
             }
 
             .progressbar{
@@ -238,12 +240,12 @@
                             x.innerHTML = "<div class='season_flag'><label>Season "+s+"</label><div data-e='*' data-s='"+s+"' onclick='season_selector(this)' class='check'><div class='block'></div></div></div>";
                         }
 
-                        x.innerHTML += "<div class='episode'><div tabindex='"+(c+1)+"' data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
+                        x.innerHTML += "<div class='episode'><div tabindex='"+(c+1)+"' data-s='"+s+"' data-name=\""+name+"\" data-e='"+e+"' data-link='"+link+"' onkeypress='check_space(event, this)' onclick='check_click(this)' class='check'><div class='block'></div></div><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
                         //x.innerHTML += "<div class='episode'><input data-s='"+s+"' data-name='"+name+"' data-e='"+e+"' data-link='"+link+"' type='checkbox'/><label>"+shortner(s+"x"+e+" - "+name,30)+"</label></div>";
                     }
 
                     document.getElementById("main").innerHTML += "<input type='button' value='download' onclick='download()'/>";
-                    document.getElementById("main").innerHTML += "<input id='path' type='text' value='C:&#92;Users&#92;bingo&#92;Desktop&#92;lw&#92;' placeholder='destination path..'/>";
+                    document.getElementById("main").innerHTML += "<input id='path' type='text' value='{{last_path}}' placeholder='destination path..'/>";
 
                 });
 
@@ -294,7 +296,7 @@
 
                 
 
-                ajax("GET", "http://127.0.0.1:5000/get_downloads", "", "", function(x){
+                ajax("GET", "http://127.0.0.1:5001/get_downloads", "", "", function(x){
                     var list = JSON.parse(x);
 
 
@@ -434,7 +436,7 @@
 
                 console.log(list);
 
-                ajax("POST", "http://127.0.0.1:5000/download", JSON.stringify(list), "", function(x){
+                ajax("POST", "http://127.0.0.1:5001/download", JSON.stringify(list), "", function(x){
                     downloads_daemon();
                 });
 

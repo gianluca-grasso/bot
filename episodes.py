@@ -37,6 +37,7 @@ class episode:
         
         self.status = 0
         self.percentage = 0
+        self.speed = 0
         self.src = None
         self.len = 0
 
@@ -76,15 +77,15 @@ class episode:
     
     def watchdog(self, x):
 
-        time.sleep(5)
+        time.sleep(3)
 
         while self.status==2:
 
             self.percentage = x.get_percentage()
-            print("th aggiorna: "+str(self.percentage))
+            self.speed = x.speed
+            #print("th aggiorna: "+str(self.percentage))
             time.sleep(1)
         
-        print("\n----------------------------------------\nDOWNLOAD FINITO\n----------------------------------------\n")
     
     '''
     0 = wait
@@ -121,7 +122,7 @@ class episode:
             
             
         
-        print("\nDOWNLOAD COMPLETATO\n")
+        print("DOWNLOAD COMPLETATED")
 
         
 

@@ -1,12 +1,17 @@
 from flask import Flask, Response, request
+from flask_cors import CORS
 from episodes import episodes, episode
 from lib import genio
+from config import config
 import json
 import _thread
 import time
 import socket
-app = Flask(__name__)
+import pickle
 
+
+app = Flask(__name__)
+CORS(app)
 
 
 
@@ -20,7 +25,12 @@ def preload_src():
 
         if data.count_episodes_by_status(1) < 2:
             x = data.get_episode_by_status(0)
+
+            
+
             if x!=None:
+
+                print(x.name)
 
                 x.preload(bot)
                 if x.status==3:
@@ -37,6 +47,9 @@ def download():
     global data
 
     t = json.loads(request.data)
+
+    config("main.pkl").set_config("last_path", t[0]["path"]).save_config("main.pkl")
+
     data.add_esisodes_as_json_or_dict(t)
     
     return Response(status=200)
@@ -79,5 +92,6 @@ if __name__ == "__main__":
             print("rimuovo episodio")
             data.rem_episodes_by_id(x.get_id())
             #print("download:",x.get_id())
+            
 
 
